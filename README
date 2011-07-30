@@ -1,0 +1,27 @@
+Step 1:
+./001-get-sizes
+
+Step 2:
+./002-split-cluster-ids-qsub
+
+Step 3:
+./004-qsub-many | qsub-many
+
+Step 4:
+Run ./005-check
+no output  means cluster 1 is good
+
+Step 5 (the manual step):
+Create a folder ./fasta_sources/ with several fasta files
+One fasta per one column in the spreadsheet
+
+mkdir fasta_sources
+
+For example:
+  mv All_* fasta_sources/
+
+Step 6:
+  ./006-make-ids-from-fasta
+
+Step 7:
+  qsub -d `pwd` ./007-species-of-clusters

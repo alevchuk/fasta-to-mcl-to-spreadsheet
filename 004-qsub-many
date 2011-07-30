@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source_fasta="24_Insect_SG_EST_sequences.fasta"
+
+for i in results/*-ids; do
+  echo ./003-ids-to-fasta $source_fasta $i
+done

@@ -1,0 +1,1 @@
+qsub -d `pwd` ./002-split-cluster-ids

@@ -1,0 +1,76 @@
+#!/usr/bin/env Rscript
+
+### Step 1
+# Read in FASTA sources (headers only)
+# Each file is a separate species
+
+d <- dir("fasta_sourcesA", full.names=TRUE)
+ids.sources_files <- d[grep("-ids$", d)]
+ids_by_species <- lapply(ids.sources_files,
+  function(filename) { read.table(filename)$V1 }
+)
+
+
+
+### Step 2
+# Extract names of all known species
+species_names <-
+    sapply(strsplit(ids.sources_files, '[/-]'), function(x){x[[2]]})
+names(ids_by_species) <- species_names
+
+species_names_full <-
+    sapply(strsplit(ids.sources_files, '[/-]'), function(x){x[[3]]})
+
+
+
+### Step 3
+# Read cluster files
+
+d <- dir("results", full.names=TRUE)
+ids.result_cluster_files <- d[grep("-ids$", d)]
+
+ids_by_cluster <- lapply(ids.result_cluster_files,
+  function(filename) { read.table(filename)$V1 }
+)
+names(ids_by_cluster) <- 
+  sapply(strsplit(ids.result_cluster_files, '[/-]'), function(x){x[[3]]})
+#print(names(ids_by_cluster))
+
+
+
+### Step 4
+# Lookup species and print
+
+cat("", "\t")
+cat(paste(species_names, "\t"), "\n")
+cat("", "\t")
+cat(paste(species_names_full, "\t"), "\n")
+
+
+invisible(sapply(names(ids_by_cluster), function(cluster_name) {
+
+  species_vec <- rep("_", length(species_names))
+  names(species_vec) <- species_names
+
+  cluster_gene_ids <- ids_by_cluster[[cluster_name]]
+
+  invisible(sapply(cluster_gene_ids,
+    function(gene_id) {
+
+      invisible(sapply(names(ids_by_species),
+        function(species_name) {
+
+          if (gene_id %in% ids_by_species[[species_name]])
+          {
+             species_vec[species_name] <<- "X"
+          }
+        }
+      ))
+
+    }
+  ))
+ 
+  cat(cluster_name, "\t")
+  cat(paste(species_vec, "\t"), "\n")
+
+}))

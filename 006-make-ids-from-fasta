@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for i in fasta_sources/*.fasta; do
+  awk '/^>/ {print $1}' $i | sed 's/>//' > $i-ids
+done

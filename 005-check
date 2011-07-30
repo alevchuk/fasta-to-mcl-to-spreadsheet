@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd results
+
+diff \
+  <(sort cluster-0001-ids) \
+  <(grep "^>" cluster-0001-ids.fasta  | awk '{print $1}' | sed 's/^>//' | sort)

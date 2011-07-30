@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+File.open("dump.10_seq.mci.I20") do |f|
+  while line = f.gets
+    puts line.split("\t").size
+  end
+end

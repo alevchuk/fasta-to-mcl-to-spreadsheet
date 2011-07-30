@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+dump_file = "dump.24_Insect_SG_EST_sequences.mci.I20"
+
+`mkdir resultsA 2> /dev/null`
+
+File.open(dump_file) do |f|
+  while line = f.gets
+    cluster_ids = line.split("\t")
+
+    fasta_filename = "./resultsA/cluster-#{f.lineno.to_s.rjust(4, '0')}-ids"
+
+    File.open(fasta_filename, 'w') do |f2|
+      f2.puts cluster_ids
+    end
+ 
+    break if f.lineno >= 5000
+  end
+end
+
