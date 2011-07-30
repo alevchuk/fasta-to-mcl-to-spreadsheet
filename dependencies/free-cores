@@ -1,0 +1,58 @@
+#!/usr/bin/ruby
+
+# free-cores  Interigate Torque (qnodes) to find how many cores are free
+# Copyright (C) 2011 Aleksandr Levchuk
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Among the "free" nodes, find ones that do NOT have any jobs
+nodes =
+  `qnodes`.split("\n\n").select {|n| n =~ /state = free/}
+
+nodes.collect! do |n|
+  node = n.split("\n").first
+
+  np = if n =~ /np = (.*)/; $1.to_i else -1; end
+
+  if n =~ /jobs = (.*)/
+    [node, np - $1.split(',').size, np]
+  else
+    [node, np, np]
+  end
+end
+nodes.sort! {|i, j| i.first <=> j.first}
+
+puts nodes.collect{|i| "#{i[0]}: #{i[1]} cores free"}
+
+
+
+free_cores = nodes.inject(0){|sum, i| i[1] + sum}
+
+busy_nodes =
+  `qnodes`.split("\n\n").select {|n| n =~ /state = job-exclusive/}
+
+busy_nodes.collect! do |n|
+  node = n.split("\n").first
+  np = if n =~ /np = (.*)/; $1.to_i else -1; end
+
+  [node, np]
+end
+
+busy_cores = nodes.inject(0){|sum, i| (i[2] - i[1]) + sum} +
+             busy_nodes.inject(0){|sum, i| i[1] + sum}
+
+
+free_ratio = (free_cores.to_f/(free_cores + busy_cores)) * 100
+puts "%d (%.1f%%) free" % [free_cores, free_ratio]
+puts "#{free_cores + busy_cores} total"
